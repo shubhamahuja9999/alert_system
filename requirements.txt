@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pydantic
+prisma[pyodbc]
+twilio
+python-dotenv

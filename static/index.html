@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self';">
+    <title>Alert System Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .get { background: #d4edda; color: #155724; }
+        .post { background: #fff3cd; color: #856404; }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ok { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 Alert System Dashboard</h1>
+        <p>Real-time monitoring and alert management system</p>
+    </div>
+
+    <div class="card">
+        <h2>System Status</h2>
+        <div id="status">
+            <span class="status" id="status-indicator">Checking...</span>
+            <span id="status-time"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>API Endpoints</h2>
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/health</strong> - System health check
+        </div>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/process-alerts</strong> - Process incoming alerts
+        </div>
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/alerts</strong> - List all alerts
+        </div>
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/alerts/{alert_id}</strong> - Get specific alert
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Quick Actions</h2>
+        <a href="/docs" class="btn">📚 API Documentation</a>
+        <a href="/health" class="btn">🔍 Health Check</a>
+        <a href="/alerts" class="btn">📋 View Alerts</a>
+        <button onclick="checkHealth()" class="btn">🔄 Refresh Status</button>
+    </div>
+
+    <div class="card">
+        <h2>Recent Alerts</h2>
+        <div id="alerts-container">
+            <p>Loading alerts...</p>
+        </div>
+    </div>
+
+    <script>
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const statusIndicator = document.getElementById('status-indicator');
+                const statusTime = document.getElementById('status-time');
+                
+                if (response.ok) {
+                    statusIndicator.textContent = 'Online';
+                    statusIndicator.className = 'status ok';
+                    statusTime.textContent = `Last checked: ${new Date(data.time).toLocaleString()}`;
+                } else {
+                    statusIndicator.textContent = 'Error';
+                    statusIndicator.className = 'status error';
+                    statusTime.textContent = 'Failed to connect';
+                }
+            } catch (error) {
+                const statusIndicator = document.getElementById('status-indicator');
+                const statusTime = document.getElementById('status-time');
+                statusIndicator.textContent = 'Offline';
+                statusIndicator.className = 'status error';
+                statusTime.textContent = 'Connection failed';
+            }
+        }
+
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/alerts?limit=5');
+                const alerts = await response.json();
+                
+                const container = document.getElementById('alerts-container');
+                
+                // Clear existing content
+                container.innerHTML = '';
+                
+                if (alerts.length === 0) {
+                    const noAlerts = document.createElement('p');
+                    noAlerts.textContent = 'No alerts found';
+                    container.appendChild(noAlerts);
+                    return;
+                }
+                
+                // Create alert elements safely
+                alerts.forEach(alert => {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'endpoint';
+                    
+                    const alertId = document.createElement('strong');
+                    alertId.textContent = 'Alert ID: ';
+                    const alertIdValue = document.createTextNode(alert.alert_id);
+                    alertId.appendChild(alertIdValue);
+                    
+                    const level = document.createElement('strong');
+                    level.textContent = 'Level: ';
+                    const levelValue = document.createTextNode(alert.alert_level);
+                    level.appendChild(levelValue);
+                    
+                    const type = document.createElement('strong');
+                    type.textContent = 'Type: ';
+                    const typeValue = document.createTextNode(alert.anomaly_type);
+                    type.appendChild(typeValue);
+                    
+                    const time = document.createElement('strong');
+                    time.textContent = 'Time: ';
+                    const timeValue = document.createTextNode(new Date(alert.timestamp).toLocaleString());
+                    time.appendChild(timeValue);
+                    
+                    alertDiv.appendChild(alertId);
+                    alertDiv.appendChild(document.createElement('br'));
+                    alertDiv.appendChild(level);
+                    alertDiv.appendChild(document.createElement('br'));
+                    alertDiv.appendChild(type);
+                    alertDiv.appendChild(document.createElement('br'));
+                    alertDiv.appendChild(time);
+                    
+                    container.appendChild(alertDiv);
+                });
+            } catch (error) {
+                const container = document.getElementById('alerts-container');
+                container.innerHTML = '';
+                const errorMsg = document.createElement('p');
+                errorMsg.textContent = 'Failed to load alerts';
+                container.appendChild(errorMsg);
+            }
+        }
+
+        // Check health on page load
+        checkHealth();
+        loadAlerts();
+        
+        // Refresh every 30 seconds
+        setInterval(checkHealth, 30000);
+        setInterval(loadAlerts, 30000);
+    </script>
+</body>
+</html>

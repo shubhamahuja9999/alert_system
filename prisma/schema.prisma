@@ -5,10 +5,12 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+
 }
 
 model AnomalyLog {
   id               String   @id @default(uuid())
+  alert_id         String   @unique
   tourist_id       String
   anomaly_type     String
   alert_level      String
@@ -17,7 +19,7 @@ model AnomalyLog {
   longitude        Float
   timestamp        DateTime
   raw_evidence     Json
-  model_version    String
+  model_version    String?
   hash             String
   createdAt        DateTime @default(now())
 }

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; connect-src 'self';">
+    <title>⚙️ Settings - Anomaly Detection Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="dashboard.css" rel="stylesheet">
+    <style>
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .settings-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .settings-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-info {
+            flex: 1;
+        }
+        
+        .setting-label {
+            font-weight: 500;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .setting-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle.active {
+            background: #667eea;
+        }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle.active::after {
+            transform: translateX(26px);
+        }
+        
+        .input-field {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 200px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .select-field {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 200px;
+        }
+        
+        .select-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-picker:hover {
+            border-color: #667eea;
+        }
+        
+        .slider {
+            width: 200px;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .slider-value {
+            font-weight: 600;
+            color: #2d3748;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .notification.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .theme-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .theme-option {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .theme-option:hover {
+            border-color: #667eea;
+        }
+        
+        .theme-option.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .theme-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .theme-colors {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .theme-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cog"></i> Settings</h1>
+            <p>Configure your anomaly detection system</p>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+            </div>
+        </div>
+
+        <div class="settings-grid">
+            <!-- General Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-sliders-h"></i>
+                    General Settings
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Auto Refresh</div>
+                        <div class="setting-description">Automatically refresh data every 30 seconds</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle active" data-setting="auto-refresh"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Sound Notifications</div>
+                        <div class="setting-description">Play sound when new alerts arrive</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle" data-setting="sound-notifications"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Dark Mode</div>
+                        <div class="setting-description">Use dark theme for better night viewing</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle" data-setting="dark-mode"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Refresh Interval</div>
+                        <div class="setting-description">How often to refresh data</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="range" class="slider" min="10" max="300" value="30" id="refresh-interval">
+                        <span class="slider-value" id="refresh-value">30s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-bell"></i>
+                    Alert Settings
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Critical Alert Threshold</div>
+                        <div class="setting-description">Confidence score threshold for critical alerts</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="range" class="slider" min="0.5" max="1.0" step="0.05" value="0.8" id="critical-threshold">
+                        <span class="slider-value" id="critical-value">0.80</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Warning Alert Threshold</div>
+                        <div class="setting-description">Confidence score threshold for warning alerts</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="range" class="slider" min="0.3" max="0.8" step="0.05" value="0.6" id="warning-threshold">
+                        <span class="slider-value" id="warning-value">0.60</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Max Alerts Display</div>
+                        <div class="setting-description">Maximum number of alerts to show</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-field" id="max-alerts">
+                            <option value="10">10 alerts</option>
+                            <option value="25">25 alerts</option>
+                            <option value="50">50 alerts</option>
+                            <option value="100">100 alerts</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Alert Retention</div>
+                        <div class="setting-description">How long to keep alert history</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-field" id="alert-retention">
+                            <option value="7">7 days</option>
+                            <option value="30">30 days</option>
+                            <option value="90">90 days</option>
+                            <option value="365">1 year</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-palette"></i>
+                    Theme Settings
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Color Scheme</div>
+                        <div class="setting-description">Choose your preferred color scheme</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="theme-preview">
+                            <div class="theme-option active" data-theme="default">
+                                <div class="theme-name">Default</div>
+                                <div class="theme-colors">
+                                    <div class="theme-color" style="background: #667eea;"></div>
+                                    <div class="theme-color" style="background: #764ba2;"></div>
+                                </div>
+                            </div>
+                            <div class="theme-option" data-theme="ocean">
+                                <div class="theme-name">Ocean</div>
+                                <div class="theme-colors">
+                                    <div class="theme-color" style="background: #0ea5e9;"></div>
+                                    <div class="theme-color" style="background: #06b6d4;"></div>
+                                </div>
+                            </div>
+                            <div class="theme-option" data-theme="forest">
+                                <div class="theme-name">Forest</div>
+                                <div class="theme-colors">
+                                    <div class="theme-color" style="background: #10b981;"></div>
+                                    <div class="theme-color" style="background: #059669;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Primary Color</div>
+                        <div class="setting-description">Custom primary color for the interface</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="color" class="color-picker" value="#667eea" id="primary-color">
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Secondary Color</div>
+                        <div class="setting-description">Custom secondary color for accents</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="color" class="color-picker" value="#764ba2" id="secondary-color">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-envelope"></i>
+                    Notification Settings
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Email Notifications</div>
+                        <div class="setting-description">Send email alerts for critical issues</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle active" data-setting="email-notifications"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">SMS Notifications</div>
+                        <div class="setting-description">Send SMS alerts for critical issues</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle" data-setting="sms-notifications"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Webhook URL</div>
+                        <div class="setting-description">External webhook for alert notifications</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="url" class="input-field" placeholder="https://example.com/webhook" id="webhook-url">
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Admin Email</div>
+                        <div class="setting-description">Email address for admin notifications</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="email" class="input-field" placeholder="admin@example.com" id="admin-email">
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-server"></i>
+                    System Settings
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">API Rate Limit</div>
+                        <div class="setting-description">Maximum requests per minute</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="range" class="slider" min="10" max="1000" value="100" id="rate-limit">
+                        <span class="slider-value" id="rate-value">100</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Log Level</div>
+                        <div class="setting-description">System logging verbosity</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-field" id="log-level">
+                            <option value="debug">Debug</option>
+                            <option value="info" selected>Info</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Data Retention</div>
+                        <div class="setting-description">How long to keep system logs</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-field" id="data-retention">
+                            <option value="7">7 days</option>
+                            <option value="30" selected>30 days</option>
+                            <option value="90">90 days</option>
+                            <option value="365">1 year</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="settings-section">
+                <div class="section-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Security Settings
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Require Authentication</div>
+                        <div class="setting-description">Require login to access dashboard</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle" data-setting="require-auth"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Session Timeout</div>
+                        <div class="setting-description">Auto-logout after inactivity</div>
+                    </div>
+                    <div class="setting-control">
+                        <select class="select-field" id="session-timeout">
+                            <option value="15">15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60" selected>1 hour</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">API Key</div>
+                        <div class="setting-description">Current API key for external access</div>
+                    </div>
+                    <div class="setting-control">
+                        <input type="text" class="input-field" value="ak_1234567890abcdef" readonly id="api-key">
+                        <button class="btn btn-secondary" onclick="generateApiKey()">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group" style="justify-content: center; margin-top: 30px;">
+            <button class="btn btn-success" onclick="saveSettings()">
+                <i class="fas fa-save"></i> Save Settings
+            </button>
+            <button class="btn btn-secondary" onclick="resetSettings()">
+                <i class="fas fa-undo"></i> Reset to Default
+            </button>
+            <button class="btn btn-danger" onclick="exportSettings()">
+                <i class="fas fa-download"></i> Export Config
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/alerts-page" class="btn btn-secondary">
+                <i class="fas fa-list"></i> All Alerts
+            </a>
+            <a href="/analytics" class="btn btn-secondary">
+                <i class="fas fa-chart-line"></i> Analytics
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Settings state
+        let settings = {
+            autoRefresh: true,
+            soundNotifications: false,
+            darkMode: false,
+            refreshInterval: 30,
+            criticalThreshold: 0.8,
+            warningThreshold: 0.6,
+            maxAlerts: 25,
+            alertRetention: 30,
+            theme: 'default',
+            primaryColor: '#667eea',
+            secondaryColor: '#764ba2',
+            emailNotifications: true,
+            smsNotifications: false,
+            webhookUrl: '',
+            adminEmail: '',
+            rateLimit: 100,
+            logLevel: 'info',
+            dataRetention: 30,
+            requireAuth: false,
+            sessionTimeout: 60,
+            apiKey: 'ak_1234567890abcdef'
+        };
+
+        // Initialize settings
+        function initializeSettings() {
+            // Load settings from localStorage
+            const savedSettings = localStorage.getItem('dashboard-settings');
+            if (savedSettings) {
+                settings = { ...settings, ...JSON.parse(savedSettings) };
+            }
+            
+            // Apply settings to UI
+            applySettingsToUI();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        function applySettingsToUI() {
+            // Toggles
+            document.querySelectorAll('[data-setting]').forEach(toggle => {
+                const setting = toggle.dataset.setting.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                toggle.classList.toggle('active', settings[setting]);
+            });
+            
+            // Sliders
+            document.getElementById('refresh-interval').value = settings.refreshInterval;
+            document.getElementById('refresh-value').textContent = settings.refreshInterval + 's';
+            
+            document.getElementById('critical-threshold').value = settings.criticalThreshold;
+            document.getElementById('critical-value').textContent = settings.criticalThreshold.toFixed(2);
+            
+            document.getElementById('warning-threshold').value = settings.warningThreshold;
+            document.getElementById('warning-value').textContent = settings.warningThreshold.toFixed(2);
+            
+            document.getElementById('rate-limit').value = settings.rateLimit;
+            document.getElementById('rate-value').textContent = settings.rateLimit;
+            
+            // Selects
+            document.getElementById('max-alerts').value = settings.maxAlerts;
+            document.getElementById('alert-retention').value = settings.alertRetention;
+            document.getElementById('log-level').value = settings.logLevel;
+            document.getElementById('data-retention').value = settings.dataRetention;
+            document.getElementById('session-timeout').value = settings.sessionTimeout;
+            
+            // Inputs
+            document.getElementById('webhook-url').value = settings.webhookUrl;
+            document.getElementById('admin-email').value = settings.adminEmail;
+            document.getElementById('api-key').value = settings.apiKey;
+            
+            // Colors
+            document.getElementById('primary-color').value = settings.primaryColor;
+            document.getElementById('secondary-color').value = settings.secondaryColor;
+            
+            // Theme
+            document.querySelectorAll('[data-theme]').forEach(option => {
+                option.classList.toggle('active', option.dataset.theme === settings.theme);
+            });
+        }
+
+        function setupEventListeners() {
+            // Toggle switches
+            document.querySelectorAll('[data-setting]').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    toggle.classList.toggle('active');
+                    const setting = toggle.dataset.setting.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                    settings[setting] = toggle.classList.contains('active');
+                });
+            });
+            
+            // Sliders
+            document.getElementById('refresh-interval').addEventListener('input', (e) => {
+                settings.refreshInterval = parseInt(e.target.value);
+                document.getElementById('refresh-value').textContent = settings.refreshInterval + 's';
+            });
+            
+            document.getElementById('critical-threshold').addEventListener('input', (e) => {
+                settings.criticalThreshold = parseFloat(e.target.value);
+                document.getElementById('critical-value').textContent = settings.criticalThreshold.toFixed(2);
+            });
+            
+            document.getElementById('warning-threshold').addEventListener('input', (e) => {
+                settings.warningThreshold = parseFloat(e.target.value);
+                document.getElementById('warning-value').textContent = settings.warningThreshold.toFixed(2);
+            });
+            
+            document.getElementById('rate-limit').addEventListener('input', (e) => {
+                settings.rateLimit = parseInt(e.target.value);
+                document.getElementById('rate-value').textContent = settings.rateLimit;
+            });
+            
+            // Selects
+            document.getElementById('max-alerts').addEventListener('change', (e) => {
+                settings.maxAlerts = parseInt(e.target.value);
+            });
+            
+            document.getElementById('alert-retention').addEventListener('change', (e) => {
+                settings.alertRetention = parseInt(e.target.value);
+            });
+            
+            document.getElementById('log-level').addEventListener('change', (e) => {
+                settings.logLevel = e.target.value;
+            });
+            
+            document.getElementById('data-retention').addEventListener('change', (e) => {
+                settings.dataRetention = parseInt(e.target.value);
+            });
+            
+            document.getElementById('session-timeout').addEventListener('change', (e) => {
+                settings.sessionTimeout = parseInt(e.target.value);
+            });
+            
+            // Inputs
+            document.getElementById('webhook-url').addEventListener('input', (e) => {
+                settings.webhookUrl = e.target.value;
+            });
+            
+            document.getElementById('admin-email').addEventListener('input', (e) => {
+                settings.adminEmail = e.target.value;
+            });
+            
+            // Colors
+            document.getElementById('primary-color').addEventListener('change', (e) => {
+                settings.primaryColor = e.target.value;
+            });
+            
+            document.getElementById('secondary-color').addEventListener('change', (e) => {
+                settings.secondaryColor = e.target.value;
+            });
+            
+            // Theme options
+            document.querySelectorAll('[data-theme]').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('[data-theme]').forEach(o => o.classList.remove('active'));
+                    option.classList.add('active');
+                    settings.theme = option.dataset.theme;
+                });
+            });
+        }
+
+        function saveSettings() {
+            // Save to localStorage
+            localStorage.setItem('dashboard-settings', JSON.stringify(settings));
+            
+            // Show notification
+            showNotification('Settings saved successfully!', 'success');
+            
+            // Apply settings to the system
+            applySettings();
+        }
+
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to default?')) {
+                localStorage.removeItem('dashboard-settings');
+                location.reload();
+            }
+        }
+
+        function exportSettings() {
+            const dataStr = JSON.stringify(settings, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'dashboard-settings.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateApiKey() {
+            const newKey = 'ak_' + Math.random().toString(36).substr(2, 16);
+            settings.apiKey = newKey;
+            document.getElementById('api-key').value = newKey;
+            showNotification('New API key generated!', 'success');
+        }
+
+        function applySettings() {
+            // Apply settings to the current session
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            
+            // Update CSS custom properties
+            document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+            document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type} show`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: #666; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeSettings);
+    </script>
+</body>
+</html>

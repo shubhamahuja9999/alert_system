@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; connect-src 'self';">
+    <title>📊 Analytics - Anomaly Detection Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="dashboard.css" rel="stylesheet">
+    <style>
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-content {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ef4444 0deg 120deg,
+                #f59e0b 120deg 180deg,
+                #3b82f6 180deg 360deg
+            );
+            position: relative;
+        }
+        
+        .pie-chart::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            gap: 10px;
+            height: 150px;
+            width: 100%;
+        }
+        
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .bar:hover {
+            transform: scaleY(1.1);
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .line-chart {
+            position: relative;
+            width: 100%;
+            height: 150px;
+        }
+        
+        .line-path {
+            fill: none;
+            stroke: #667eea;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .area-path {
+            fill: url(#gradient);
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .metric-change {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .metric-change.positive {
+            color: #10b981;
+        }
+        
+        .metric-change.negative {
+            color: #ef4444;
+        }
+        
+        .metric-change.neutral {
+            color: #6b7280;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-color.critical {
+            background: #ef4444;
+        }
+        
+        .legend-color.warning {
+            background: #f59e0b;
+        }
+        
+        .legend-color.info {
+            background: #3b82f6;
+        }
+        
+        .time-range {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .time-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .time-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .time-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+        
+        .trend-up {
+            color: #10b981;
+        }
+        
+        .trend-down {
+            color: #ef4444;
+        }
+        
+        .trend-stable {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
+            <p>Comprehensive insights and trends analysis</p>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+            </div>
+        </div>
+
+        <!-- Time Range Selector -->
+        <div class="time-range">
+            <button class="time-btn active" data-range="24h">Last 24 Hours</button>
+            <button class="time-btn" data-range="7d">Last 7 Days</button>
+            <button class="time-btn" data-range="30d">Last 30 Days</button>
+            <button class="time-btn" data-range="all">All Time</button>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="analytics-grid">
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Total Alerts
+                </div>
+                <div class="chart-content">
+                    <div class="metric-card">
+                        <div class="metric-value" id="total-alerts">0</div>
+                        <div class="metric-label">Total Alerts</div>
+                        <div class="metric-change neutral" id="total-change">
+                            <span class="trend-indicator">
+                                <i class="fas fa-minus"></i>
+                                <span>No change</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-fire"></i>
+                    Critical Alerts
+                </div>
+                <div class="chart-content">
+                    <div class="metric-card">
+                        <div class="metric-value" id="critical-alerts">0</div>
+                        <div class="metric-label">Critical Alerts</div>
+                        <div class="metric-change neutral" id="critical-change">
+                            <span class="trend-indicator">
+                                <i class="fas fa-minus"></i>
+                                <span>No change</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-clock"></i>
+                    Response Time
+                </div>
+                <div class="chart-content">
+                    <div class="metric-card">
+                        <div class="metric-value" id="avg-response">0ms</div>
+                        <div class="metric-label">Avg Response Time</div>
+                        <div class="metric-change neutral" id="response-change">
+                            <span class="trend-indicator">
+                                <i class="fas fa-minus"></i>
+                                <span>No change</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-percentage"></i>
+                    Detection Rate
+                </div>
+                <div class="chart-content">
+                    <div class="metric-card">
+                        <div class="metric-value" id="detection-rate">0%</div>
+                        <div class="metric-label">Detection Accuracy</div>
+                        <div class="metric-change neutral" id="detection-change">
+                            <span class="trend-indicator">
+                                <i class="fas fa-minus"></i>
+                                <span>No change</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="analytics-grid">
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Alert Distribution
+                </div>
+                <div class="chart-content">
+                    <div class="pie-chart"></div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color critical"></div>
+                            <span>Critical</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color warning"></div>
+                            <span>Warning</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color info"></div>
+                            <span>Info</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Alerts Over Time
+                </div>
+                <div class="chart-content">
+                    <div class="bar-chart" id="bar-chart">
+                        <!-- Bars will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Trend Analysis
+                </div>
+                <div class="chart-content">
+                    <div class="line-chart">
+                        <svg width="100%" height="150" viewBox="0 0 300 150">
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.3" />
+                                    <stop offset="100%" style="stop-color:#667eea;stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            <path class="area-path" d="M0,150 L50,120 L100,100 L150,80 L200,90 L250,70 L300,60 L300,150 Z"></path>
+                            <path class="line-path" d="M0,120 L50,100 L100,80 L150,60 L200,70 L250,50 L300,40"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Anomaly Types -->
+        <div class="chart-container" style="grid-column: 1 / -1;">
+            <div class="chart-title">
+                <i class="fas fa-list-ol"></i>
+                Top Anomaly Types
+            </div>
+            <div id="anomaly-types-list">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/alerts-page" class="btn btn-secondary">
+                <i class="fas fa-list"></i> All Alerts
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let analyticsData = {
+            total: 0,
+            critical: 0,
+            warning: 0,
+            info: 0,
+            trends: [],
+            anomalyTypes: {}
+        };
+
+        async function loadAnalyticsData() {
+            try {
+                const response = await fetch('/alerts');
+                const alerts = await response.json();
+                
+                analyticsData.total = alerts.length;
+                analyticsData.critical = alerts.filter(a => a.alert_level === 'CRITICAL').length;
+                analyticsData.warning = alerts.filter(a => a.alert_level === 'WARNING').length;
+                analyticsData.info = alerts.filter(a => a.alert_level === 'INFO').length;
+                
+                // Calculate anomaly types
+                analyticsData.anomalyTypes = {};
+                alerts.forEach(alert => {
+                    const type = alert.anomaly_type;
+                    analyticsData.anomalyTypes[type] = (analyticsData.anomalyTypes[type] || 0) + 1;
+                });
+                
+                // Generate trends (mock data for demo)
+                analyticsData.trends = generateTrendData(alerts);
+                
+                updateMetrics();
+                updateCharts();
+                updateAnomalyTypes();
+                
+            } catch (error) {
+                console.error('Error loading analytics data:', error);
+            }
+        }
+
+        function generateTrendData(alerts) {
+            // Generate mock trend data for the last 7 days
+            const trends = [];
+            const now = new Date();
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                
+                // Count alerts for this day
+                const dayAlerts = alerts.filter(alert => {
+                    const alertDate = new Date(alert.timestamp);
+                    return alertDate.toDateString() === date.toDateString();
+                });
+                
+                trends.push({
+                    date: date.toISOString().split('T')[0],
+                    count: dayAlerts.length,
+                    critical: dayAlerts.filter(a => a.alert_level === 'CRITICAL').length,
+                    warning: dayAlerts.filter(a => a.alert_level === 'WARNING').length,
+                    info: dayAlerts.filter(a => a.alert_level === 'INFO').length
+                });
+            }
+            
+            return trends;
+        }
+
+        function updateMetrics() {
+            document.getElementById('total-alerts').textContent = analyticsData.total;
+            document.getElementById('critical-alerts').textContent = analyticsData.critical;
+            
+            // Calculate average response time (mock)
+            const avgResponse = Math.floor(Math.random() * 500) + 100;
+            document.getElementById('avg-response').textContent = avgResponse + 'ms';
+            
+            // Calculate detection rate (mock)
+            const detectionRate = Math.floor(Math.random() * 20) + 80;
+            document.getElementById('detection-rate').textContent = detectionRate + '%';
+            
+            // Update trend indicators
+            updateTrendIndicator('total-change', analyticsData.total);
+            updateTrendIndicator('critical-change', analyticsData.critical);
+            updateTrendIndicator('response-change', avgResponse);
+            updateTrendIndicator('detection-change', detectionRate);
+        }
+
+        function updateTrendIndicator(elementId, value) {
+            const element = document.getElementById(elementId);
+            const trend = Math.random() > 0.5 ? 'up' : 'down';
+            const change = Math.floor(Math.random() * 20) + 1;
+            
+            element.className = `metric-change ${trend === 'up' ? 'positive' : 'negative'}`;
+            element.innerHTML = `
+                <span class="trend-indicator">
+                    <i class="fas fa-arrow-${trend}"></i>
+                    <span>${change}%</span>
+                </span>
+            `;
+        }
+
+        function updateCharts() {
+            updateBarChart();
+        }
+
+        function updateBarChart() {
+            const barChart = document.getElementById('bar-chart');
+            const maxValue = Math.max(...analyticsData.trends.map(t => t.count));
+            
+            barChart.innerHTML = analyticsData.trends.map(trend => {
+                const height = (trend.count / maxValue) * 100;
+                const date = new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                return `
+                    <div class="bar" style="height: ${height}%">
+                        <div class="bar-value">${trend.count}</div>
+                        <div class="bar-label">${date}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateAnomalyTypes() {
+            const container = document.getElementById('anomaly-types-list');
+            const sortedTypes = Object.entries(analyticsData.anomalyTypes)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+            
+            container.innerHTML = sortedTypes.map(([type, count], index) => {
+                const percentage = ((count / analyticsData.total) * 100).toFixed(1);
+                const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'];
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; margin: 10px 0; background: rgba(255, 255, 255, 0.5); border-radius: 10px; border-left: 4px solid ${colors[index]};">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 30px; height: 30px; background: ${colors[index]}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${index + 1}</div>
+                            <div>
+                                <div style="font-weight: 600; color: #2d3748;">${type}</div>
+                                <div style="font-size: 0.9rem; color: #666;">${count} alerts</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.2rem; font-weight: 700; color: #2d3748;">${percentage}%</div>
+                            <div style="font-size: 0.8rem; color: #666;">of total</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Time range filtering
+        document.querySelectorAll('[data-range]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                // In a real app, this would filter data by time range
+                loadAnalyticsData();
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnalyticsData();
+            
+            // Refresh data every 30 seconds
+            setInterval(loadAnalyticsData, 30000);
+        });
+    </script>
+</body>
+</html>

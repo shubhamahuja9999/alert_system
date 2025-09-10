@@ -1,6 +1,6 @@
 # logger.py
 from prisma import Prisma
-from utils import generate_hash
+from .utils import generate_hash
 from datetime import datetime
 
 db = Prisma()

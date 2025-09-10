@@ -2,10 +2,10 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from schemas import DetectResponse
-from dispatcher import dispatch_alert_background
-from logger import init_db, close_db, log_evidence, list_alerts, get_alert_by_alert_id
-from utils import append_detection_log
+from .schemas import DetectResponse
+from .dispatcher import dispatch_alert_background
+from .logger import init_db, close_db, log_evidence, list_alerts, get_alert_by_alert_id
+from .utils import append_detection_log
 from typing import Any
 from datetime import datetime
 from dotenv import load_dotenv
@@ -26,11 +26,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Alert System", lifespan=lifespan)
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+import os
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
 def root():
-    response = FileResponse("static/index.html")
+    response = FileResponse(os.path.join(static_dir, "index.html"))
     # Add CSP headers to allow inline scripts and styles
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "

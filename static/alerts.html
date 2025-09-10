@@ -52,6 +52,149 @@
         .alert-card * {
             color: #000000 !important;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        .modal-body {
+            padding: 30px;
+            color: #1f2937;
+        }
+
+        .modal-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .modal-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .modal-detail-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-detail-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-modal {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .alert-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .alert-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
         
         .alert-header {
             display: flex;
@@ -342,7 +485,7 @@
             }
 
             container.innerHTML = pageAlerts.map((alert, index) => `
-                <div class="alert-card ${alert.alert_level.toLowerCase()}" style="animation-delay: ${index * 0.1}s">
+                <div class="alert-card ${alert.alert_level.toLowerCase()}" style="animation-delay: ${index * 0.1}s" onclick="showAlertModal(${JSON.stringify(alert).replace(/"/g, '&quot;')})">
                     <div class="alert-header">
                         <div class="alert-title">${alert.anomaly_type}</div>
                         <div class="alert-level ${alert.alert_level.toLowerCase()}">${alert.alert_level}</div>
@@ -482,6 +625,95 @@
                 }
             });
         });
+
+        // Modal functions
+        function showAlertModal(alert) {
+            const modal = document.getElementById('alertModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDetails = document.getElementById('modalDetails');
+            
+            modalTitle.textContent = alert.anomaly_type;
+            
+            modalDetails.innerHTML = `
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Alert ID</div>
+                    <div class="modal-detail-value">${alert.alert_id}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Severity Level</div>
+                    <div class="modal-detail-value">
+                        <span class="alert-level ${alert.alert_level.toLowerCase()}">${alert.alert_level}</span>
+                    </div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Tourist ID</div>
+                    <div class="modal-detail-value">${alert.tourist_id}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Confidence Score</div>
+                    <div class="modal-detail-value">${(alert.confidence_score * 100).toFixed(1)}%</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Latitude</div>
+                    <div class="modal-detail-value">${alert.latitude.toFixed(6)}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Longitude</div>
+                    <div class="modal-detail-value">${alert.longitude.toFixed(6)}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Timestamp</div>
+                    <div class="modal-detail-value">${new Date(alert.timestamp).toLocaleString()}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="modal-detail-label">Model Version</div>
+                    <div class="modal-detail-value">${alert.model_version || 'v1.0.0'}</div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('alertModal');
+            modal.style.display = 'none';
+        }
+
+        function acknowledgeAlert() {
+            // Add acknowledgment logic here
+            alert('Alert acknowledged!');
+            closeModal();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('alertModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Close modal with X button
+        document.querySelector('.close').onclick = closeModal;
     </script>
+
+    <!-- Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Alert Details</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-details" id="modalDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-modal btn-secondary" onclick="closeModal()">Close</button>
+                    <button class="btn-modal btn-primary" onclick="acknowledgeAlert()">Acknowledge</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

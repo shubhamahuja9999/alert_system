@@ -167,41 +167,71 @@
 
         /* Alert Cards */
         .alert-item {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            border-left: 4px solid #f59e0b;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 15px 0;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #6366f1;
+            padding: 24px;
+            border-radius: 16px;
+            margin: 16px 0;
             transition: all 0.3s ease;
             animation: slideInRight 0.5s ease-out;
-            color: #000000 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: #1e293b;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
         }
 
         .alert-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #c7d2fe;
         }
 
         .alert-item.critical {
-            background: linear-gradient(135deg, #fecaca, #fca5a5);
-            border-left-color: #ef4444;
-            color: #000000 !important;
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border-left-color: #dc2626;
+            color: #7f1d1d;
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1), 0 2px 4px -1px rgba(220, 38, 38, 0.06);
+        }
+
+        .alert-item.critical::before {
+            background: linear-gradient(90deg, #dc2626, #ef4444, #f87171);
         }
 
         .alert-item.warning {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            border-left-color: #f59e0b;
-            color: #000000 !important;
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-left-color: #d97706;
+            color: #92400e;
+            box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.1), 0 2px 4px -1px rgba(217, 119, 6, 0.06);
+        }
+
+        .alert-item.warning::before {
+            background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);
         }
 
         .alert-item.info {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            border-left-color: #3b82f6;
-            color: #000000 !important;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-left-color: #2563eb;
+            color: #1e40af;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+        }
+
+        .alert-item.info::before {
+            background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
         }
         
         .alert-item * {
-            color: #000000 !important;
+            color: inherit;
         }
 
         /* Modal Styles */
@@ -427,7 +457,7 @@
             }
 
             .modal-body {
-                padding: 15px;
+            padding: 15px;
                 max-height: calc(95vh - 60px);
                 overflow-y: auto;
             }
@@ -497,25 +527,43 @@
         .alert-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
+            gap: 16px;
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
         }
 
         .alert-detail {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .alert-detail:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
         }
 
         .alert-detail-label {
-            font-size: 0.8rem;
-            color: #000000;
+            font-size: 0.75rem;
+            color: #64748b;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
         }
 
         .alert-detail-value {
             font-weight: 700;
-            color: #000000;
+            color: inherit;
+            font-size: 0.95rem;
         }
 
         /* Buttons */
@@ -713,9 +761,9 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
+    <div class="header">
             <h1><i class="fas fa-shield-alt"></i> Anomaly Detection Dashboard</h1>
-            <p>Real-time monitoring and alert management system</p>
+        <p>Real-time monitoring and alert management system</p>
             <div class="live-indicator">
                 <div class="live-dot"></div>
                 <span>LIVE</span>
@@ -740,7 +788,7 @@
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
-        </div>
+    </div>
 
         <div class="dashboard-grid">
             <!-- System Status Card -->
@@ -766,11 +814,11 @@
                         <div class="stat-number" id="critical-alerts">0</div>
                         <div class="stat-label">Critical</div>
                     </div>
-                </div>
-            </div>
+        </div>
+    </div>
 
             <!-- Quick Actions Card -->
-            <div class="card">
+    <div class="card">
                 <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
                 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                     <a href="/docs" class="btn">
@@ -785,11 +833,11 @@
                     <button onclick="refreshAll()" class="btn">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                </div>
-            </div>
+        </div>
+    </div>
 
             <!-- API Endpoints Card -->
-            <div class="card">
+    <div class="card">
                 <h2><i class="fas fa-plug"></i> API Endpoints</h2>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
@@ -809,12 +857,12 @@
                     </div>
                 </div>
             </div>
-        </div>
+    </div>
 
         <!-- Recent Alerts Card -->
-        <div class="card">
+    <div class="card">
             <h2><i class="fas fa-exclamation-triangle"></i> Recent Alerts</h2>
-            <div id="alerts-container">
+        <div id="alerts-container">
                 <div class="loading">
                     <div class="spinner"></div>
                 </div>

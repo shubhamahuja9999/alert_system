@@ -9,48 +9,200 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="dashboard.css" rel="stylesheet">
     <style>
+        /* Enhanced Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Enhanced Container */
         .alerts-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+            padding: 0 10px;
         }
         
+        /* Enhanced Alert Cards */
         .alert-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%);
+            border: 2px solid transparent;
             border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.6s ease-out;
-            color: #000000 !important;
+            padding: 28px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.08),
+                0 4px 16px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.8s ease-out;
+            color: #1e293b;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #f59e0b);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .alert-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
         }
         
         .alert-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 12px 24px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .alert-card:hover::after {
+            opacity: 1;
+        }
+
+        .alert-card:active {
+            transform: translateY(-4px) scale(1.01);
         }
         
+        /* Critical Alerts */
         .alert-card.critical {
-            border-left: 5px solid #ef4444;
-            background: linear-gradient(135deg, rgba(254, 202, 202, 0.1), rgba(252, 165, 165, 0.1));
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 50%, #fef2f2 100%);
+            border-color: rgba(220, 38, 38, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(220, 38, 38, 0.12),
+                0 4px 16px rgba(220, 38, 38, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            color: #7f1d1d;
+            animation: fadeInUp 0.8s ease-out, pulse 2s ease-in-out infinite;
+        }
+
+        .alert-card.critical::before {
+            background: linear-gradient(90deg, #dc2626, #ef4444, #f87171, #fca5a5);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        .alert-card.critical:hover {
+            box-shadow: 
+                0 25px 50px rgba(220, 38, 38, 0.2),
+                0 12px 24px rgba(220, 38, 38, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
         
+        /* Warning Alerts */
         .alert-card.warning {
-            border-left: 5px solid #f59e0b;
-            background: linear-gradient(135deg, rgba(254, 243, 199, 0.1), rgba(253, 230, 138, 0.1));
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fffbeb 100%);
+            border-color: rgba(217, 119, 6, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(217, 119, 6, 0.12),
+                0 4px 16px rgba(217, 119, 6, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            color: #92400e;
+            animation: fadeInUp 0.8s ease-out, float 3s ease-in-out infinite;
+        }
+
+        .alert-card.warning::before {
+            background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24, #fcd34d);
+            animation: shimmer 3.5s ease-in-out infinite;
+        }
+
+        .alert-card.warning:hover {
+            box-shadow: 
+                0 25px 50px rgba(217, 119, 6, 0.2),
+                0 12px 24px rgba(217, 119, 6, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
         
+        /* Info Alerts */
         .alert-card.info {
-            border-left: 5px solid #3b82f6;
-            background: linear-gradient(135deg, rgba(219, 234, 254, 0.1), rgba(191, 219, 254, 0.1));
-            color: #000000 !important;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #eff6ff 100%);
+            border-color: rgba(37, 99, 235, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(37, 99, 235, 0.12),
+                0 4px 16px rgba(37, 99, 235, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            color: #1e40af;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .alert-card.info::before {
+            background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa, #93c5fd);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        .alert-card.info:hover {
+            box-shadow: 
+                0 25px 50px rgba(37, 99, 235, 0.2),
+                0 12px 24px rgba(37, 99, 235, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
         
         .alert-card * {
-            color: #000000 !important;
+            color: inherit !important;
         }
 
         /* Modal Styles */
@@ -409,75 +561,192 @@
             color: #000000;
         }
         
+        /* Enhanced Filters */
         .filters {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
         }
         
         .filter-btn {
-            padding: 8px 16px;
-            border: 2px solid #e2e8f0;
-            background: white;
-            border-radius: 25px;
+            padding: 12px 24px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .filter-btn:hover::before {
+            left: 100%;
         }
         
         .filter-btn:hover {
+            transform: translateY(-2px) scale(1.05);
             border-color: #667eea;
             color: #667eea;
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.15),
+                0 4px 12px rgba(102, 126, 234, 0.1);
         }
         
         .filter-btn.active {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #667eea;
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.3),
+                0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .filter-btn.active::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
         }
         
         .search-box {
             flex: 1;
-            min-width: 200px;
-            padding: 10px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 25px;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid transparent;
+            border-radius: 30px;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-box::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
         }
         
         .search-box:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.1),
+                0 8px 25px rgba(102, 126, 234, 0.15),
+                0 4px 12px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
         
+        /* Enhanced Stats Bar */
         .stats-bar {
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 25px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
+            justify-content: center;
         }
         
         .stat-card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px 20px;
-            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+            padding: 20px 25px;
+            border-radius: 20px;
             text-align: center;
-            min-width: 120px;
+            min-width: 140px;
+            border: 2px solid transparent;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.08),
+                0 4px 16px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+            background-size: 200% 100%;
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.12),
+                0 8px 16px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .stat-card.critical {
+            background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(254, 202, 202, 0.9) 100%);
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+
+        .stat-card.critical::before {
+            background: linear-gradient(90deg, #dc2626, #ef4444, #f87171);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, rgba(255, 251, 235, 0.95) 0%, rgba(254, 243, 199, 0.9) 100%);
+            border-color: rgba(217, 119, 6, 0.2);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(219, 234, 254, 0.9) 100%);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
         }
         
         .stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2d3748;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out;
         }
         
         .stat-label {
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.9rem;
+            color: #64748b;
             margin-top: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .no-alerts {
@@ -492,35 +761,321 @@
             opacity: 0.5;
         }
         
+        /* Enhanced Pagination */
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 30px;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 20px;
         }
         
         .page-btn {
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            background: white;
-            border-radius: 8px;
+            padding: 12px 20px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+            min-width: 44px;
+            text-align: center;
+        }
+
+        .page-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .page-btn:hover::before {
+            left: 100%;
         }
         
         .page-btn:hover {
-            background: #f8f9fa;
+            transform: translateY(-2px) scale(1.05);
+            border-color: #667eea;
+            color: #667eea;
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.15),
+                0 4px 12px rgba(102, 126, 234, 0.1);
         }
         
         .page-btn.active {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #667eea;
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.3),
+                0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .page-btn.active::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
         }
         
         .page-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .page-btn:disabled:hover {
+            transform: none;
+            border-color: transparent;
+            color: inherit;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Enhanced Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced No Alerts State */
+        .no-alerts {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.6) 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(226, 232, 240, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        .no-alerts i {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            opacity: 0.6;
+            color: #94a3b8;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .no-alerts h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #475569;
+        }
+
+        .no-alerts p {
+            font-size: 1.1rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Enhanced Professional Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 60px 20px 40px;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 42, 0.95) 0%, 
+                rgba(30, 41, 59, 0.9) 50%, 
+                rgba(51, 65, 85, 0.85) 100%);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                #6366f1 20%, 
+                #8b5cf6 50%, 
+                #ec4899 80%, 
+                transparent 100%);
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 20px 0;
+            text-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .header h1 i {
+            margin-right: 20px;
+            color: #6366f1;
+            filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .header p {
+            font-size: 1.4rem;
+            color: #cbd5e1;
+            margin: 0 0 30px 0;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.2s both;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, 
+                rgba(34, 197, 94, 0.9) 0%, 
+                rgba(16, 185, 129, 0.8) 100%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 
+                0 8px 20px rgba(34, 197, 94, 0.3),
+                0 4px 8px rgba(34, 197, 94, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.4s both;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .live-indicator span {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile Responsive Header */
+        @media (max-width: 768px) {
+            .header {
+                padding: 40px 15px 30px;
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+
+            .header h1 i {
+                margin-right: 12px;
+                font-size: 0.8em;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+                margin-bottom: 25px;
+            }
+
+            .live-indicator {
+                padding: 10px 20px;
+                gap: 10px;
+            }
+
+            .live-dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .live-indicator span {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 30px 10px 25px;
+                margin-bottom: 25px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                margin-bottom: 12px;
+            }
+
+            .header p {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+
+            .live-indicator {
+                padding: 8px 16px;
+                gap: 8px;
+            }
         }
     </style>
 </head>
@@ -614,10 +1169,39 @@
             const warning = allAlerts.filter(a => a.alert_level === 'WARNING').length;
             const info = allAlerts.filter(a => a.alert_level === 'INFO').length;
 
-            document.getElementById('total-alerts').textContent = total;
-            document.getElementById('critical-alerts').textContent = critical;
-            document.getElementById('warning-alerts').textContent = warning;
-            document.getElementById('info-alerts').textContent = info;
+            // Update numbers with animation
+            animateNumber(document.getElementById('total-alerts'), total);
+            animateNumber(document.getElementById('critical-alerts'), critical);
+            animateNumber(document.getElementById('warning-alerts'), warning);
+            animateNumber(document.getElementById('info-alerts'), info);
+
+            // Add appropriate classes to stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards[0].className = 'stat-card'; // Total
+            statCards[1].className = 'stat-card critical';
+            statCards[2].className = 'stat-card warning';
+            statCards[3].className = 'stat-card info';
+        }
+
+        function animateNumber(element, targetNumber) {
+            const startNumber = parseInt(element.textContent) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function updateNumber(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const currentNumber = Math.round(startNumber + (targetNumber - startNumber) * easeOutQuart);
+                
+                element.textContent = currentNumber;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+            
+            requestAnimationFrame(updateNumber);
         }
 
         function renderAlerts() {
@@ -638,39 +1222,78 @@
             }
 
             container.innerHTML = pageAlerts.map((alert, index) => `
-                <div class="alert-card ${alert.alert_level.toLowerCase()}" style="animation-delay: ${index * 0.1}s" onclick="showAlertModal(${JSON.stringify(alert).replace(/"/g, '&quot;')})">
+                <div class="alert-card ${alert.alert_level.toLowerCase()}" 
+                     style="animation-delay: ${index * 0.15}s; opacity: 0;" 
+                     onclick="showAlertModal(${JSON.stringify(alert).replace(/"/g, '&quot;')})"
+                     onmouseenter="this.style.transform='translateY(-8px) scale(1.02)'"
+                     onmouseleave="this.style.transform='translateY(0) scale(1)'">
                     <div class="alert-header">
-                        <div class="alert-title">${alert.anomaly_type}</div>
-                        <div class="alert-level ${alert.alert_level.toLowerCase()}">${alert.alert_level}</div>
+                        <div class="alert-title">
+                            <i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: inherit;"></i>
+                            ${alert.anomaly_type}
+                        </div>
+                        <div class="alert-level ${alert.alert_level.toLowerCase()}">
+                            <i class="fas fa-${alert.alert_level === 'CRITICAL' ? 'fire' : alert.alert_level === 'WARNING' ? 'exclamation' : 'info-circle'}" style="margin-right: 4px;"></i>
+                            ${alert.alert_level}
+                        </div>
                     </div>
                     <div class="alert-details">
                         <div class="alert-detail">
-                            <div class="alert-detail-label">Alert ID</div>
+                            <div class="alert-detail-label">
+                                <i class="fas fa-hashtag" style="margin-right: 4px;"></i>
+                                Alert ID
+                            </div>
                             <div class="alert-detail-value">${alert.alert_id.substring(0, 12)}...</div>
                         </div>
                         <div class="alert-detail">
-                            <div class="alert-detail-label">Tourist ID</div>
+                            <div class="alert-detail-label">
+                                <i class="fas fa-user" style="margin-right: 4px;"></i>
+                                Tourist ID
+                            </div>
                             <div class="alert-detail-value">${alert.tourist_id}</div>
                         </div>
                         <div class="alert-detail">
-                            <div class="alert-detail-label">Confidence</div>
+                            <div class="alert-detail-label">
+                                <i class="fas fa-percentage" style="margin-right: 4px;"></i>
+                                Confidence
+                            </div>
                             <div class="alert-detail-value">${(alert.confidence_score * 100).toFixed(1)}%</div>
                         </div>
                         <div class="alert-detail">
-                            <div class="alert-detail-label">Location</div>
+                            <div class="alert-detail-label">
+                                <i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>
+                                Location
+                            </div>
                             <div class="alert-detail-value">${alert.location.lat.toFixed(4)}, ${alert.location.lng.toFixed(4)}</div>
                         </div>
                         <div class="alert-detail">
-                            <div class="alert-detail-label">Time</div>
+                            <div class="alert-detail-label">
+                                <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                Time
+                            </div>
                             <div class="alert-detail-value">${new Date(alert.timestamp).toLocaleString()}</div>
                         </div>
                         <div class="alert-detail">
-                            <div class="alert-detail-label">Model</div>
+                            <div class="alert-detail-label">
+                                <i class="fas fa-cog" style="margin-right: 4px;"></i>
+                                Model
+                            </div>
                             <div class="alert-detail-value">${alert.model_version || 'v2.0'}</div>
                         </div>
                     </div>
                 </div>
             `).join('');
+
+            // Trigger animations after a short delay
+            setTimeout(() => {
+                const cards = container.querySelectorAll('.alert-card');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                    }, index * 100);
+                });
+            }, 100);
         }
 
         function updatePagination() {
